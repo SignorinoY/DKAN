@@ -1,0 +1,6 @@
+onlyOneBackUp: 1
+dos2unixlinebreaks: 1
+
+lookForAlignDelims:
+  tabular:
+    multiColumnGrouping: 1
