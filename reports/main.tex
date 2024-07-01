@@ -173,13 +173,13 @@ The DKAN operator in Algorithm~\ref{alg:dkan-operator} is easy to implement and 
 	\begin{equation*}
 		z_{ij}^{(l)} \leftarrow \frac{z_{ij}^{(l)} - \widehat{\mu}_{ij}^{(l)}}{\sqrt{\widehat{\sigma}_{ij}^{(l)2}}};
 	\end{equation*}
-	Compute the output of the DKAN network
+	Compute the output of the DKAN layer
 	\begin{equation*}
 		z_{jk}^{(l+1)}:=\phi_{jk}^{(l+1)}(z_{ij}^{(l)})=w\operatorname{silu}(z_{ij}^{(l)})+\sum_{k=0}^{K+1}c_{k}B_{k}(z_{ij}^{(l)}),
 	\end{equation*}
 	where $B_{k}(\cdot)$ is the B-spline basis function defined by the grid points $\{\zeta_{ij,k}^{(l)}\}$ and the boundaries $a$ and $b$\;
 	}
-	\KwResult{Output activations $\left\{\mathbf{z}_{jk}^{(l+1)}\right\}$}
+	\KwResult{Output activations $\left\{\mathbf{z}_{jk}^{(l+1)}\right\}$.}
 \end{algorithm}
 
 \section{Experiments}
@@ -219,7 +219,7 @@ The experiments were repeated ten times to account for variability in the result
 \begin{table}[htbp]
 	\centering
 	\caption{Comparison of DKANs and KANs on synthetic datasets. The results are presented as the minimum validation and test loss, with the mean validation and test loss provided in parentheses.}
-	\label{tab:synthetic-dataset}.
+	\label{tab:synthetic-dataset}
 	\begin{tabular}{cccccc}
 		\toprule
 		Type                     & Method & Validation      & Test            \\
@@ -269,7 +269,7 @@ The results demonstrate that DKANs consistently outperformed KANs across all dat
 
 The recently proposed KANs have brought renewed attention to the classical non-parametric estimation tools, B-splines, within the context of deep learning. Despite their potential, the use of B-splines in KANs also introduces challenges such as increased computational complexity and reduced efficiency compared to multi-layer perceptrons.
 In this paper, we address the issue of predefined grids in KANs, which may not align well with the distribution of input activations, potentially leading to suboptimal performance. To overcome this limitation, we propose Kolmogorov-Arnold Networks with Dynamic Grids, which are designed to enhance the performance of KANs through dynamic grid selection.
-Our proposed DKANs architecture not only addresses the inherent limitations of predefined grids but also demonstrates the potential for broader applications where dynamic adjustment can lead to significant improvements in deep learning models. Through a series of experiments on real-world datasets, we show that DKANs consistently outperform KANs, validating the effectiveness of our approach in achieving more accurate and robust neural network models
+Our proposed DKANs architecture not only addresses the inherent limitations of predefined grids but also demonstrates the potential for broader applications where dynamic adjustment can lead to significant improvements in deep learning models. Through a series of experiments on real-world datasets, we show that DKANs consistently outperform KANs, validating the effectiveness of our approach in achieving more accurate and robust neural network models.
 
 \bibliography{references}
 \bibliographystyle{apalike}
