@@ -5,12 +5,13 @@ from datetime import datetime
 from pathlib import Path
 
 import lightning.pytorch as pl
+import numpy as np
 import torch
 import torch.utils
 from lightning.pytorch.utilities.rank_zero import rank_zero_info
 from lightning.pytorch.utilities.types import (EVAL_DATALOADERS,
                                                TRAIN_DATALOADERS)
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, Dataset
 from torchvision import datasets
 from torchvision.transforms import Compose, Normalize, ToTensor
 
@@ -86,6 +87,67 @@ class ImageDataModule(pl.LightningDataModule):
                 self.test_data = datasets.FashionMNIST(root=self.cache_dir, train=False, download=True, transform=transform)
             elif self.dataset_name == "kmnist":
                 self.test_data = datasets.KMNIST(root=self.cache_dir, train=False, download=True, transform=transform)
+
+    def train_dataloader(self) -> TRAIN_DATALOADERS:
+        return DataLoader(
+            self.train_data,
+            batch_size=self.batch_size,
+            num_workers=self.num_workers,
+            persistent_workers=True,
+        )
+
+    def val_dataloader(self) -> EVAL_DATALOADERS:
+        return DataLoader(
+            self.val_data,
+            batch_size=self.batch_size,
+            num_workers=self.num_workers,
+            persistent_workers=True,
+        )
+
+    def test_dataloader(self) -> EVAL_DATALOADERS:
+        return DataLoader(
+            self.test_data, batch_size=self.batch_size, num_workers=self.num_workers
+        )
+
+class SimulateDataModule(pl.LightningDataModule):
+    def __init__(
+        self,
+        dataset_name: str = DataModuleConfig.dataset_name,
+        train_val_test_split: tuple[int, int, int] = (9000, 1000, 10000),
+        batch_size: int = DataModuleConfig.batch_size,
+        num_workers: int = DataModuleConfig.num_workers,
+        seed: int = Config.seed
+    ) -> None:
+        super().__init__()
+        self.dataset_name = dataset_name
+        self.train_val_test_split = train_val_test_split
+        self.batch_size = batch_size
+        self.num_workers = num_workers
+        self.seed = seed
+
+        self.data_train: Dataset | None = None
+        self.data_val: Dataset | None = None
+        self.data_test: Dataset | None = None
+
+    def prepare_data(self) -> None:
+        pl.seed_everything(self.seed)
+        n_total = sum(self.train_val_test_split)
+        if self.dataset_name == "type1":
+            x = np.random.uniform(-1, 1, (n_total, 2))
+        elif self.dataset_name == "type2":
+            x = np.random.multivariate_normal([0, 0], [[1, 0], [0, 1]], n_total)
+        y = np.log(np.abs(x[:, 0]) + (x[:, 1] / 2) ** 2 + 1)
+        y += np.random.normal(0, 0.1, n_total)
+        self.data = torch.tensor(x, dtype=torch.float32), torch.tensor(y, dtype=torch.float32).unsqueeze(1)
+
+
+    def setup(self, stage: str | None = None) -> None:
+        if not self.data_train and not self.data_val and not self.data_test:
+            dataset = torch.utils.data.TensorDataset(*self.data)
+            self.train_data, self.val_data, self.test_data = torch.utils.data.random_split(
+                dataset, self.train_val_test_split,
+                generator=torch.Generator().manual_seed(42)
+            )
 
     def train_dataloader(self) -> TRAIN_DATALOADERS:
         return DataLoader(

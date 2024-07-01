@@ -22,16 +22,16 @@ class Config:
 
 @dataclass
 class ModuleConfig:
-    model_name: str = "DKAN"
-    hidden_dim: int = 64
-    lr: float = 1e-3
+    model_name: str = "KAN"
+    hidden_dim: int = 1
+    lr: float = 5e-2
 
 @dataclass
 class DataModuleConfig:
-    dataset_name: str = "mnist"
-    input_dim: int = 784
+    dataset_name: str = "type2"
+    input_dim: int = 2
     num_classes: int = 10
-    batch_size: int = 256
+    batch_size: int = 64
     train_split: str = "train"
     test_split: str = "test"
     train_size: float = 0.9
